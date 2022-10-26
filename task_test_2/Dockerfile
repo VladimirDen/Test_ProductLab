@@ -5,9 +5,9 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /HTTP
 
-COPY ./requirements.txt ./
+COPY HTTP/requirements.txt ./
 RUN pip install -r requirements.txt
-COPY ./HTTP ./HTTP
+COPY HTTP/HTTP ./HTTP
 
 EXPOSE 8000
 
