@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis
+    restart: always
+    network_mode: "host"
+
+  db:
+    image: postgres:12.12
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    env_file: ./.db.env
+    ports:
+      - '5432:5432'
+    network_mode: "host"
+
+  webapp:
+    restart: always
+    build:
+      context: ./HTTP
+    volumes:
+      - .:/usr/local/HTTP
+    ports:
+      - '8000:8000'
+    env_file: ./.env
+    depends_on:
+      - db
+    network_mode: "host"
+
+  celery:
+    restart: always
+    build:
+      context: .
+    entrypoint: celery -A HTTP worker -l info
+    volumes:
+      - .:/usr/local/HTTP
+    env_file: ./.env
+    depends_on:
+      - db
+      - redis
+      - web
+    network_mode: "host"
+volumes:
+  data:
