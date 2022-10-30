@@ -21,51 +21,58 @@ class Article(BaseModel):
     selling: dict
 
 
-async def get_search(artic):
+class GetSearch:# async def get_search(artic):
 
-    url = f"https://wbx-content-v2.wbstatic.net/ru/{artic}.json"
+    async def get_search(self, artic):
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
+        self.artic = artic
 
-                try:
-                    scrap_resolt = await response.json()
-                    await search_articule(scrap_resolt)
-                except ValidationError as err:
-                    log.error(f"Error - {err}.")
+        url = f"https://wbx-content-v2.wbstatic.net/ru/{artic}.json"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+
+                    try:
+                        scrap_resolt = await response.json()
+                        # await search_articule(scrap_resolt)
+                    except ValidationError as err:
+                        log.error(f"Error - {err}.")
+
+        scrap_art = Article.parse_obj(scrap_resolt)
+        sellin = scrap_art.selling
+        article = scrap_art.nm_id
+        brand = sellin["brand_name"]
+        title = sellin["brand_name"] + "/" + scrap_art.imt_name
+        return article, brand, title
 
 
-async def search_articule(scrap_resolt):
-    scrap_art = Article.parse_obj(scrap_resolt)
-    sellin = scrap_art.selling
-    article = scrap_art.nm_id
-    brand = sellin["brand_name"]
-    title = sellin["brand_name"] + "/" + scrap_art.imt_name
+await def one_article(article):
+    OneArticle = GetSearch.get_search(article)
+
     await ProductArticle.objects.filter(article=article).aupdate(brand=brand, title=title)
 
-
-async def get_search_file(articles):
-
-    url = f"https://wbx-content-v2.wbstatic.net/ru/{articles}.json"
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-
-                try:
-                    scrap_resolts = await response.json()
-                    await search_articule(scrap_resolts)
-                except ValidationError as err:
-                    log.error(f"Error - {err}.")
-
-
-async def search_art_excel(scrap_resolts):
-    scrap_art = Person.parse_obj(scrap_resolts)
-    sellin = scrap_art.selling
-    article = scrap_art.nm_id
-    brand = sellin["brand_name"]
-    title = sellin["brand_name"] + "/" + scrap_art.imt_name
+# async def get_search_file(articles):
+#
+#     url = f"https://wbx-content-v2.wbstatic.net/ru/{articles}.json"
+#
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url) as response:
+#             if response.status == 200:
+#
+#                 try:
+#                     scrap_resolts = await response.json()
+#                     await search_articule(scrap_resolts)
+#                 except ValidationError as err:
+#                     log.error(f"Error - {err}.")
+#
+#
+# async def search_art_excel(scrap_resolts):
+#     scrap_art = Person.parse_obj(scrap_resolts)
+#     sellin = scrap_art.selling
+#     article = scrap_art.nm_id
+#     brand = sellin["brand_name"]
+#     title = sellin["brand_name"] + "/" + scrap_art.imt_name
     await ExcelArticle.objects.filter(article=article).aupdate(brand=brand, title=title)
 
 
