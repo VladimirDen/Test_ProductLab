@@ -52,6 +52,14 @@ await def one_article(article):
 
     await ProductArticle.objects.filter(article=article).aupdate(brand=brand, title=title)
 
+
+await def exel_article(article):
+    ExcelArticles = GetSearch.get_search(article)
+
+    await ExcelArticle.objects.filter(article=article).aupdate(brand=brand, title=title)
+
+
+
 # async def get_search_file(articles):
 #
 #     url = f"https://wbx-content-v2.wbstatic.net/ru/{articles}.json"
@@ -73,7 +81,7 @@ await def one_article(article):
 #     article = scrap_art.nm_id
 #     brand = sellin["brand_name"]
 #     title = sellin["brand_name"] + "/" + scrap_art.imt_name
-    await ExcelArticle.objects.filter(article=article).aupdate(brand=brand, title=title)
+
 
 
 async def art_excel(excel_base64):
@@ -88,6 +96,6 @@ async def art_excel(excel_base64):
 
 async def sending_article(art_list):
     await asyncio.gather(
-        *(get_search_file(articles) for articles in art_list),
+        *(exel_article(article) for article in art_list),
         return_exceptions=True
     )
